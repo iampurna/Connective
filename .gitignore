@@ -1,0 +1,73 @@
+# .NET build artifacts
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug*/
+[Rr]elease*/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# OS-specific files (macOS)
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS thumbnail cache files
+._*
+
+# VS Code settings
+.vscode/
+*.code-workspace
+
+# Rider settings
+.idea/
+*.sln.iml
+
+# Logs and crash dumps
+*.log
+*.stackdump
+
+# NuGet
+*.nupkg
+.nuget/
+
+# Environment files
+.env
+.env.*
+
+# Global JetBrains Rider files
+.idea/
+
+# Optional: ASP.NET Identity or other secrets
+appsettings.Development.json
+secrets.json
+
+# ASP.NET published output
+wwwroot/lib/
+publish/
+
+# Coverage tools
+coverage/
+*.coverage
+*.coveragexml
+
+# DotCover
+*.dotCover
+
+# Test results
+TestResults/
+*.trx
+
+# Other
+_ReSharper*/
