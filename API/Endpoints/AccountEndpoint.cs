@@ -14,7 +14,7 @@ public static class AccountEndpoint
 
         group.MapPost("/register", async (HttpContext context, UserManager<AppUser>
         userManager, [FromForm] string fullName, [FromForm] string email,
-        [FromForm] string password) =>
+        [FromForm] string password, [FromForm] string userName) =>
         {
             var userFromDb = await userManager.FindByEmailAsync(email);
 
@@ -25,7 +25,8 @@ public static class AccountEndpoint
             var user = new AppUser
             {
                 Email = email,
-                FullName = fullName
+                FullName = fullName,
+                UserName = userName,
             };
             var result = await userManager.CreateAsync(user, password);
             if (!result.Succeeded)
@@ -34,7 +35,7 @@ public static class AccountEndpoint
                     .Select(x => x.Description).FirstOrDefault()!));
             }
             return Results.Ok(Response<string>.Success("User Registered Successfully!"));
-        });
+        }).DisableAntiforgery();
         return group;
     }
 }
