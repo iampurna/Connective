@@ -11,4 +11,5 @@ public class AppDbContext : IdentityDbContext<AppUser>
         : base(options)
     {
     }
+    public DbSet<Message> Messages { get; set; }
 }
