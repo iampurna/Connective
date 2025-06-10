@@ -38,6 +38,10 @@ onlineUsers = new();
             onlineUsers.TryAdd(userName, user);
             await Clients.AllExcept(connectionId).SendAsync("Notify", currentUser);
         }
+        if (!string.IsNullOrEmpty(ReceiverId))
+        {
+            await LoadMessages(ReceiverId);
+        }
         await Clients.All.SendAsync("OnlineUsers", await GetAllUsers());
     }
 

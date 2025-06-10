@@ -9,6 +9,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+    });
+});
 var JwtSetting = builder.Configuration.GetSection("JwtSettings");
 
 builder.Services.AddDbContext<AppDbContext>(x =>
@@ -23,11 +33,11 @@ builder.Services.AddAuthentication(opt =>
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(opt =>
+}).AddJwtBearer(option =>
 {
-    opt.SaveToken = true;
-    opt.RequireHttpsMetadata = false;
-    opt.TokenValidationParameters = new TokenValidationParameters
+    option.SaveToken = true;
+    option.RequireHttpsMetadata = false;
+    option.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes
@@ -35,12 +45,25 @@ builder.Services.AddAuthentication(opt =>
         ValidateIssuer = false,
         ValidateAudience = false,
     };
+    option.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            if (!string.IsNullOrEmpty(accessToken) && context.HttpContext.Request.Path.StartsWithSegments("/hub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 builder.Services.AddAuthorization();
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -50,10 +73,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors(x => x
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowCredentials().WithOrigins("http://localhost:4200", "https://localhost:4200"));
 app.UseStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 app.MapAccountEndpoint();
+app.MapHub<ChatHub>("/hub/chat");
 app.Run();
 
